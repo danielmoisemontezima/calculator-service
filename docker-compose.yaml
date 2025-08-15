@@ -1,0 +1,6 @@
+services:
+  calculator:
+    image: ghcr.io/danielmoisemontezima/calculator-service:latest
+    ports:
+      - "8080:8080"
+    restart: unless-stopped

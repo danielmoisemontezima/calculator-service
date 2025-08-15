@@ -1,4 +1,4 @@
-# Use official Go image as base
+# Stage 1: Build the Go binary
 FROM golang:1.21 AS builder
 
 WORKDIR /app
@@ -11,8 +11,8 @@ RUN go mod download
 COPY . .
 RUN go build -o calculator-service
 
-# Use a minimal image for production
-FROM debian:bullseye-slim
+# Stage 2: Use a modern base image with GLIBC ≥ 2.34
+FROM debian:bookworm-slim
 
 WORKDIR /app
 COPY --from=builder /app/calculator-service .
