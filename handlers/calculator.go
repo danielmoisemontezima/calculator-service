@@ -27,29 +27,13 @@ func Calculate(w http.ResponseWriter, r *http.Request) {
     a, errA := strconv.ParseFloat(req.A, 64)
     b, errB := strconv.ParseFloat(req.B, 64)
     if errA != nil || errB != nil {
-        http.Error(w, "Invalid numbers", http.StatusBadRequest)
+        errResp := OperationResponse{Result: 0, Error: "Invalid numbers"}
+        w.Header().Set("Content-Type", "application/json")
+        json.NewEncoder(w).Encode(errResp)
         return
     }
 
-    var result float64
-    var errMsg string
-
-    switch req.Operator {
-    case "+":
-        result = a + b
-    case "-":
-        result = a - b
-    case "*":
-        result = a * b
-    case "/":
-        if b == 0 {
-            errMsg = "Division by zero"
-        } else {
-            result = a / b
-        }
-    default:
-        errMsg = "Unsupported operator"
-    }
+    result, errMsg := PerformOperation(a, b, req.Operator)
 
     resp := OperationResponse{Result: result}
     if errMsg != "" {
@@ -58,4 +42,23 @@ func Calculate(w http.ResponseWriter, r *http.Request) {
 
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(resp)
+}
+
+// PerformOperation is now testable
+func PerformOperation(a, b float64, operator string) (float64, string) {
+    switch operator {
+    case "+":
+        return a + b, ""
+    case "-":
+        return a - b, ""
+    case "*":
+        return a * b, ""
+    case "/":
+        if b == 0 {
+            return 0, "Division by zero"
+        }
+        return a / b, ""
+    default:
+        return 0, "Unsupported operator"
+    }
 }
